@@ -1,0 +1,153 @@
+{% extends 'index.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class='container'>
+<h1 class='text-center'> {{ article.title }}</h1>
+<hr>
+<p class='text-center'><img src='{{ article.image.url }}' width='60%'></p>
+<div class= 'container'>
+	<div class='col-sm-12'>
+		<div class='col-sm-7 col-sm-offset-2'>
+		{{ article.content|safe }}
+		<hr>
+		<a href='#' id='like'><scan class='glyphicon glyphicon-thumbs-up' style='color:green'></scan></a> <span id='liked '>0 </span>
+		<a href='#' id='dislike' style='padding-left:25px;'><scan class='glyphicon glyphicon-thumbs-down' style='color:red'></scan></a><span
+		 id='disliked '>0 </span>
+		<hr>
+		<p class='add_to_favorites-{{ article.slug }}'>
+		{% if article in current_user.favorite_articles.all %}<button class='btn btn-default disabled'>Already added to favorites</button>
+		{% else %}<a href='#' class='article' data-slug='{{ article.slug }}'><button class='btn btn-danger'>Add to favorites</button></a>{% endif %}
+		</p>
+		<p class='article_added-{{ article.slug }}'></p>
+		
+		<!-- /.container <h2>Comments: </h2>
+				{% for comment in article_comments %}
+				<div class='col-sm-12'>
+					<hr>
+					<small>{{ comment.author.username }}</small>
+					<p>{{ comment.comment }}</p>
+					<small>{{ comment.timestamp }}</small>
+					<hr>
+				</div>
+				{% endfor %}
+		</div>
+		<div class='col-sm-7 col-sm-offset-2'>
+			<form action='' method="POST">
+			<input type="hidden" id='article' data-id='{{ article.id }}'>
+				{% csrf_token %}
+				{{ form|crispy }}
+				<input type='submit' value='Add comment' id='add_comment'>
+		</div>
+    </div>-->
+
+
+</div>
+</div>
+
+{% block jquery %}
+<script>
+	$(document).ready(function(){
+			function getCookie(name) {
+			    var cookieValue = null;
+			    if (document.cookie && document.cookie !== '') {
+			        var cookies = document.cookie.split(';');
+			        for (var i = 0; i < cookies.length; i++) {
+			            var cookie = cookies[i].trim();
+			            // Does this cookie string begin with the name we want?
+			            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+			                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+			                break;
+			            }
+			        }
+			    }
+			    return cookieValue;
+			}
+			var csrftoken = getCookie('csrftoken');
+		$('#add_comment').on('click', function(e){
+		e.preventDefault()
+		var article_id = $("#article").attr('data-id')
+		var comment = $("#id_comment").val()
+
+		data = {
+			article_id: article_id,
+			comment: comment,
+			csrfmiddlewaretoken: csrftoken
+
+		}
+		$.ajax({
+			type:'POST',
+			url: "{% url 'add_comment' %}",
+			dataType: 'json',
+			data:data,
+			success: function(data){
+				console.log(data)	
+			}
+		})
+		})
+	})
+</script>
+<script>
+	$(document).ready(function(){
+		$('#like').on('click', function(e){
+			e.preventDefault()
+				var like= 'like'
+				var article_id = $('#article').attr('data-id')
+				data={
+					article_id: article_id,
+					like: like
+				}
+				$.ajax({
+					type: "GET",
+					url: "{% url 'user_reaction' %}",
+					dataType: 'json',
+					data: data,
+					success:function(data){
+
+					}
+				})
+		})
+	})
+	$(document).ready(function(){
+		$('#dislike').on('click', function(e){
+			e.preventDefault()
+				var like= 'dislike'
+				var article_id = $('#article').attr('data-id')
+				data={
+					article_id: article_id,
+					dislike: dislike
+				}
+				$.ajax({
+					type: "GET",
+					url: "{% url 'user_reaction' %}",
+					dataType: 'json',
+					data: data,
+					success:function(data){
+						
+					}
+				})
+		})
+	})
+</script>
+<script>
+	$(document).ready(function(){
+		$('.article').on('click', function(e){
+			e.preventDefault()
+			var article_slug= ($(this).attr('data-slug'))
+			data={
+				article_slug:article_slug
+			}
+			$.ajax({
+				type:"GET",
+				url: "{% url 'add_to_favorites' %}",
+				dataType:'json',
+				data: data,
+				success: function(data){
+					$('.add_to_favorites-' + article_slug).css('display','none')
+					$('.article_added-'+ article_slug).html('<button class="btn btn-default disabled">Already added to favorites</button>')
+				}
+			})
+		})
+	})
+</script>
+{% endblock jquery %}
+{% endblock content %}

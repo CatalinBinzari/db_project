@@ -1,0 +1,27 @@
+{% extends 'index.html' %}
+
+{% block content %}
+<div class='container'>
+<h3 class='text-center'>{{current_user.user}}'s personal profile</h3>
+	<hr>
+	<div class='row'>
+		<div class='col-sm-4'>
+			<h3><strong>Personal info</strong></s></h3>
+			<p>Login: {{current_user.user}}</p>
+			<p>Name: {{current_user.first_name}}</p>
+			<p>Surname: {{current_user.last_name}}</p>
+			<p>Email: {{current_user.email}}</p>
+			
+		</div>
+		<div class='col-sm-8'>
+			<h3 class='text-center'><strong>Selected articles</strong></h3>
+			<ul class='button-group'>
+				{% for article in current_user.favorite_articles.all %}
+				<li class='list-group-item'><a href ='{{ article.get_absolute_url }}'style='text-decoration: none;'>{{ article.title }}</a></li>
+				{% endfor %}	
+			</ul>
+		</div>
+	</div>
+	</div>
+
+{% endblock content %}
